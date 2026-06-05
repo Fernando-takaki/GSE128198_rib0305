@@ -1,0 +1,7 @@
+data/raw/
+results/
+reference/*.fa
+reference/*.gtf
+*.bam
+*.gz
+.snakemake/
