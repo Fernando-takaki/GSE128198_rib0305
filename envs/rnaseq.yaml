@@ -1,0 +1,12 @@
+name: rnaseq_env
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - r-base
+  - r-tidyverse
+  - bioconductor-tximport
+  - bioconductor-deseq2
+  - bioconductor-clusterprofiler
+  - bioconductor-org.mm.eg.db
