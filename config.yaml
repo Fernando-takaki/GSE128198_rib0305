@@ -1,0 +1,7 @@
+dataset: "GSE128198"
+metadata:
+  organism: "mouse"
+  design: "~ cell_type * enhancer_ko"
+  pmid: "32499651"
+reference:
+  tx2gene: "reference/tx2gene.csv"
