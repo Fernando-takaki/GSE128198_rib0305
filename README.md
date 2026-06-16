@@ -15,10 +15,12 @@ Para garantir total reprodutibilidade, escalabilidade e controle de ambiente, to
 
 As etapas automatizadas incluem:
 1. **Aquisição de Dados:** Download direto via FTP do European Nucleotide Archive (ENA) utilizando a ferramenta `wget`, otimizando a estabilidade da rede.
-2. **Controle de Qualidade (QC) e Limpeza:** * Extração de métricas brutas via `FastQC`.
+2. **Controle de Qualidade (QC) e Limpeza:**
+   * Extração de métricas brutas via `FastQC`.
    * Trimming de adaptadores e filtragem de qualidade com `fastp`.
    * Agregação de todos os relatórios em um painel único utilizando `MultiQC`.
-3. **Quantificação Baseada em Transcriptoma:** * Indexação e pseudoalinhamento das amostras utilizando `Salmon` contra o transcriptoma de referência do Ensembl.
+3. **Quantificação Baseada em Transcriptoma:**
+   * Indexação e pseudoalinhamento das amostras utilizando `Salmon` contra o transcriptoma de referência do Ensembl.
 4. **Análise de Expressão Diferencial e Relatório:**
    * Importação de dados no R via `tximport`.
    * Modelagem de distribuição binomial negativa com `DESeq2` utilizando a fórmula `~ cell_type * enhancer_ko`.
