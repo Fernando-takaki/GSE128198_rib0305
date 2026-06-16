@@ -10,7 +10,7 @@ O design experimental é um **fatorial 2x2**, totalizando 12 amostras de *Mus mu
 * **Tipos Celulares:** Treg vs. Tconv
 * **Genótipo:** Selvagem (WT) vs. Nocaute do Enhancer (Enh-KO)
 
-##⚙Arquitetura do Pipeline
+## Arquitetura do Pipeline
 Para garantir total reprodutibilidade, escalabilidade e controle de ambiente, todo o fluxo de trabalho foi orquestrado utilizando **Snakemake** e **Conda**. 
 
 As etapas automatizadas incluem:
@@ -35,3 +35,4 @@ cd GSE128198_RNAseq
 # 2. Execute o pipeline completo orquestrado pelo Snakemake
 # A flag --use-conda instrui a montagem automática de todos os ambientes virtuais
 snakemake --use-conda -j 4
+```
