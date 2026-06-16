@@ -4,8 +4,10 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - r-base
+  - r-base>=4.3.0,<4.4.0
   - r-tidyverse
+  - r-rmarkdown
+  - r-pheatmap
   - bioconductor-tximport
   - bioconductor-deseq2
   - bioconductor-clusterprofiler

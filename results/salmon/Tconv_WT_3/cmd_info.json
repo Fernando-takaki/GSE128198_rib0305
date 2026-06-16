@@ -1,0 +1,9 @@
+{
+    "salmon_version": "1.10.3",
+    "index": "reference/salmon_index",
+    "libType": "A",
+    "unmatedReads": "data/cleaned/Tconv_WT_3.fastq.gz",
+    "threads": "2",
+    "output": "results/salmon/Tconv_WT_3/",
+    "auxDir": "aux_info"
+}

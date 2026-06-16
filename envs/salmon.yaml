@@ -1,7 +1,7 @@
 name: salmon_env
 channels:
-  - bioconda
   - conda-forge
+  - bioconda
   - defaults
 dependencies:
-  - salmon
+  - salmon=1.9.0

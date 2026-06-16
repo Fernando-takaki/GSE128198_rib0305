@@ -1,0 +1,206 @@
+---
+title: "Análise de RNA-seq: GSE128198"
+author: "Fernando"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: flatly
+    toc: true
+    toc_float: true
+---
+
+# 1. Introdução
+
+Este relatório apresenta a análise de expressão diferencial do projeto **GSE128198**, investigando o papel de um enhancer imunológico na regulação de células Treg e Tconv (modelo *Mus musculus*). O design do estudo é um fatorial 2x2.
+
+```{r setup, include=FALSE}
+# Configuração inicial: silencia avisos chatos no relatório final
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+# Carrega as bibliotecas necessárias
+library(tximport)
+library(DESeq2)
+library(tidyverse)
+
+# Lemos a tabela de amostras
+samples <- read.table(snakemake@input[["metadata"]], header=TRUE, stringsAsFactors=TRUE)
+
+# O Snakemake já nos passa os caminhos dos arquivos do Salmon
+files <- snakemake@input[["quants"]]
+names(files) <- samples$sample_id
+
+# Lemos o arquivo que conecta Transcritos a Genes
+tx2gene <- read.csv(snakemake@input[["tx2gene"]], header=FALSE)
+colnames(tx2gene) <- c("TXNAME", "GENEID")
+
+# Executamos o tximport
+txi <- tximport(files, type="salmon", tx2gene=tx2gene)
+
+print(paste("Foram importados", nrow(txi$counts), "genes com sucesso!"))
+```
+
+# 2. Expressão Diferencial (DESeq2) e PCA
+
+Com as contagens importadas, inicializamos o objeto do DESeq2. Seguindo o delineamento do estudo, utilizamos um design fatorial (`~ cell_type * enhancer_ko`) para avaliar o efeito do nocaute do enhancer nos diferentes tipos celulares.
+
+```{r deseq2, fig.width=8, fig.height=6}
+# 1. Criar o objeto DESeqDataSet
+dds <- DESeqDataSetFromTximport(txi,
+                                colData = samples,
+                                design = ~ cell_type * enhancer_ko)
+
+# 2. Filtragem de genes com baixa expressão (ruído)
+# Mantemos apenas genes com pelo menos 10 reads em 3 ou mais amostras
+keep <- rowSums(counts(dds) >= 10) >= 3
+dds <- dds[keep,]
+print(paste("Genes retidos após filtragem:", nrow(dds)))
+
+# 3. Executar o pipeline estatístico do DESeq2
+dds <- DESeq(dds)
+
+# 4. Transformação estabilizadora de variância (VST) para visualização
+vsd <- vst(dds, blind=FALSE)
+
+# 5. Gráfico de PCA
+pca_data <- plotPCA(vsd, intgroup=c("cell_type", "enhancer_ko"), returnData=TRUE)
+percentVar <- round(100 * attr(pca_data, "percentVar"))
+
+ggplot(pca_data, aes(PC1, PC2, color=cell_type, shape=enhancer_ko)) +
+  geom_point(size=4) +
+  xlab(paste0("PC1: ",percentVar[1],"% variance")) +
+  ylab(paste0("PC2: ",percentVar[2],"% variance")) +
+  theme_minimal() +
+  ggtitle("PCA das Amostras - GSE128198")
+```
+
+# 3. Identificação de Genes Diferencialmente Expressos (DEGs)
+
+Nesta etapa, extraímos os resultados estatísticos do DESeq2. Seguindo os critérios de rigor, definimos como Genes Diferencialmente Expressos (DEGs) aqueles que apresentam um P-valor ajustado (FDR) menor que 0.05 e uma mudança de expressão de pelo menos 2 vezes (Log2FC > 1 ou < -1).
+
+```{r de_results, fig.width=8, fig.height=6}
+# 1. Extrair os resultados principais do modelo
+res <- results(dds, alpha = 0.05)
+
+# 2. Converter para DataFrame para facilitar a manipulação
+res_df <- as.data.frame(res) %>%
+  rownames_to_column(var = "Gene") %>%
+  drop_na(padj, log2FoldChange)
+
+# 3. Classificar os genes segundo os limiares do estudo
+res_df <- res_df %>%
+  mutate(Status = case_when(
+    padj < 0.05 & log2FoldChange > 1 ~ "Up-regulated",
+    padj < 0.05 & log2FoldChange < -1 ~ "Down-regulated",
+    TRUE ~ "Não Significativo"
+  ))
+
+# Imprimir resumo de quantos genes encontramos
+print("Resumo de Genes Encontrados:")
+print(table(res_df$Status))
+
+# 4. Salvar a tabela completa em CSV (Boa prática profissional)
+dir.create("results/deseq2", showWarnings = FALSE)
+write.csv(res_df, "results/deseq2/tabela_DEGs_GSE128198.csv", row.names = FALSE)
+
+# 5. Visualização: Volcano Plot
+ggplot(res_df, aes(x = log2FoldChange, y = -log10(padj), color = Status)) +
+  geom_point(alpha = 0.7, size = 1.5) +
+  scale_color_manual(values = c("blue", "gray", "red")) +
+  theme_minimal() +
+  geom_vline(xintercept = c(-1, 1), linetype = "dashed", color = "black") +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "black") +
+  labs(title = "Volcano Plot - Expressão Diferencial (GSE128198)",
+       x = "Log2 Fold Change",
+       y = "-Log10(P-valor Ajustado)")
+```
+
+# 4. Enriquecimento Funcional (GO e KEGG)
+
+Para interpretar biologicamente as alterações causadas pelo nocaute, utilizamos o pacote `clusterProfiler`. A análise busca vias metabólicas (KEGG) e processos biológicos (Gene Ontology) onde nossos DEGs estão super-representados.
+
+```{r enrichment, fig.width=10, fig.height=6, message=FALSE, warning=FALSE}
+library(clusterProfiler)
+library(org.Mm.eg.db)
+
+# 1. Pegar a lista de genes significativos
+sig_genes <- subset(res_df, Status != "Não Significativo")$Gene
+
+# Os IDs do Ensembl geralmente vêm com versão (ex: ENSMUSG000000123.4)
+# Precisamos remover o ponto e o número final para o banco de dados reconhecer
+sig_genes_clean <- gsub("\\..*", "", sig_genes)
+
+# 2. Converter IDs do Ensembl para Entrez ID e Symbol (Nomes dos genes)
+gene_conv <- bitr(sig_genes_clean,
+                  fromType = "ENSEMBL",
+                  toType = c("ENTREZID", "SYMBOL"),
+                  OrgDb = org.Mm.eg.db)
+
+print(paste("Genes convertidos com sucesso:", nrow(gene_conv)))
+
+# 3. Análise Gene Ontology (Processos Biológicos)
+if(nrow(gene_conv) > 0) {
+  ego <- enrichGO(gene = gene_conv$ENTREZID,
+                  OrgDb = org.Mm.eg.db,
+                  ont = "BP",
+                  pAdjustMethod = "BH",
+                  pvalueCutoff = 0.05,
+                  readable = TRUE)
+
+  if (!is.null(ego) && nrow(ego) > 0) {
+    print(dotplot(ego, showCategory=10) + ggtitle("Enriquecimento GO - Processos Biológicos"))
+  } else {
+    print("Nenhum termo GO significativamente enriquecido (típico para listas muito curtas de genes).")
+  }
+
+  # 4. Análise KEGG (Vias Metabólicas)
+  ekegg <- enrichKEGG(gene = gene_conv$ENTREZID,
+                      organism = 'mmu', # mmu = Mus musculus
+                      pvalueCutoff = 0.05)
+
+  if (!is.null(ekegg) && nrow(ekegg) > 0) {
+    print(dotplot(ekegg, showCategory=10) + ggtitle("Enriquecimento KEGG - Vias Metabólicas"))
+  } else {
+    print("Nenhuma via KEGG significativamente enriquecida.")
+  }
+}
+```
+
+# 5. Análises Complementares dos DEGs
+
+Como a alteração do *enhancer* gerou um efeito cirúrgico (apenas 8 genes diferencialmente expressos), optamos por investigar o padrão de expressão direto desses genes candidatos através de um Heatmap e observar o gene mais significativo.
+
+```{r exploracao_extra, fig.width=8, fig.height=6}
+library(pheatmap)
+
+# 1. Isolar os 8 genes significativos
+top_genes <- res_df %>%
+  filter(Status != "Não Significativo") %>%
+  arrange(padj) %>% # Ordena do mais significativo para o menos
+  pull(Gene)
+
+# 2. Pegar as contagens normalizadas (VST) apenas desses 8 genes
+mat_genes <- assay(vsd)[top_genes, ]
+
+# Subtrair a média da linha (para destacar as diferenças relativas no gráfico)
+mat_genes <- mat_genes - rowMeans(mat_genes)
+
+# Criar a barra de anotação de cores para as colunas
+anotacao_amostras <- as.data.frame(colData(dds)[, c("cell_type", "enhancer_ko")])
+
+# 3. Gerar o Heatmap
+pheatmap(mat_genes,
+         annotation_col = anotacao_amostras,
+         main = "Perfil de Expressão dos 8 DEGs",
+         fontsize_row = 10)
+
+# 4. Plotar o gene mais significativo (Top 1)
+top1_gene <- top_genes[1]
+grafico_top1 <- plotCounts(dds, gene = top1_gene, intgroup = c("cell_type", "enhancer_ko"), returnData = TRUE)
+
+ggplot(grafico_top1, aes(x = enhancer_ko, y = count, color = cell_type)) +
+  geom_point(position = position_jitter(w = 0.1, h = 0), size = 4) +
+  theme_minimal() +
+  labs(title = paste("Contagens do Gene Mais Significativo:", top1_gene),
+       x = "Condição (WT vs KO)",
+       y = "Contagens Normalizadas")
+```

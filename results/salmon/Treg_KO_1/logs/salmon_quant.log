@@ -1,0 +1,56 @@
+[2026-06-15 14:47:42.296] [jointLog] [info] setting maxHashResizeThreads to 2
+[2026-06-15 14:47:42.296] [jointLog] [info] Fragment incompatibility prior below threshold.  Incompatible fragments will be ignored.
+[2026-06-15 14:47:42.296] [jointLog] [info] Usage of --validateMappings implies use of minScoreFraction. Since not explicitly specified, it is being set to 0.65
+[2026-06-15 14:47:42.296] [jointLog] [info] Setting consensusSlack to selective-alignment default of 0.35.
+[2026-06-15 14:47:42.296] [jointLog] [info] parsing read library format
+[2026-06-15 14:47:42.296] [jointLog] [info] There is 1 library.
+[2026-06-15 14:47:42.296] [jointLog] [info] Loading pufferfish index
+[2026-06-15 14:47:42.296] [jointLog] [info] Loading dense pufferfish index.
+[2026-06-15 14:47:43.861] [jointLog] [info] done
+[2026-06-15 14:47:44.046] [jointLog] [info] Index contained 116,178 targets
+[2026-06-15 14:47:44.158] [jointLog] [info] Number of decoys : 0
+[2026-06-15 14:47:44.889] [jointLog] [info] Automatically detected most likely library type as U
+
+[2026-06-15 14:51:07.738] [fileLog] [info] 
+At end of round 0
+==================
+Observed 8939430 total fragments (8939430 in most recent round)
+
+[2026-06-15 14:51:07.737] [jointLog] [info] Computed 240,307 rich equivalence classes for further processing
+[2026-06-15 14:51:07.737] [jointLog] [info] Counted 5,702,370 total reads in the equivalence classes 
+[2026-06-15 14:51:07.740] [jointLog] [warning] 0.115276% of fragments were shorter than the k used to build the index.
+If this fraction is too large, consider re-building the index with a smaller k.
+The minimum read size found was 15.
+
+
+[2026-06-15 14:51:07.740] [jointLog] [info] Number of mappings discarded because of alignment score : 20,977,411
+[2026-06-15 14:51:07.740] [jointLog] [info] Number of fragments entirely discarded because of alignment score : 287,122
+[2026-06-15 14:51:07.740] [jointLog] [info] Number of fragments discarded because they are best-mapped to decoys : 0
+[2026-06-15 14:51:07.740] [jointLog] [info] Number of fragments discarded because they have only dovetail (discordant) mappings to valid targets : 0
+[2026-06-15 14:51:07.740] [jointLog] [info] Mapping rate = 63.789%
+
+[2026-06-15 14:51:07.740] [jointLog] [info] finished quantifyLibrary()
+[2026-06-15 14:51:07.740] [jointLog] [info] Starting optimizer
+[2026-06-15 14:51:07.976] [jointLog] [info] Marked 0 weighted equivalence classes as degenerate
+[2026-06-15 14:51:08.052] [jointLog] [info] iteration = 0 | max rel diff. = 4343.99
+[2026-06-15 14:51:15.099] [jointLog] [info] iteration = 100 | max rel diff. = 8.81694
+[2026-06-15 14:51:22.513] [jointLog] [info] iteration = 200 | max rel diff. = 17.0162
+[2026-06-15 14:51:29.015] [jointLog] [info] iteration = 300 | max rel diff. = 2.3368
+[2026-06-15 14:51:35.882] [jointLog] [info] iteration = 400 | max rel diff. = 0.192015
+[2026-06-15 14:51:42.528] [jointLog] [info] iteration = 500 | max rel diff. = 0.21441
+[2026-06-15 14:51:49.945] [jointLog] [info] iteration = 600 | max rel diff. = 0.36301
+[2026-06-15 14:51:57.366] [jointLog] [info] iteration = 700 | max rel diff. = 0.379858
+[2026-06-15 14:52:04.257] [jointLog] [info] iteration = 800 | max rel diff. = 0.217469
+[2026-06-15 14:52:10.920] [jointLog] [info] iteration = 900 | max rel diff. = 0.0606994
+[2026-06-15 14:52:18.088] [jointLog] [info] iteration = 1,000 | max rel diff. = 0.0496075
+[2026-06-15 14:52:25.366] [jointLog] [info] iteration = 1,100 | max rel diff. = 0.110029
+[2026-06-15 14:52:32.256] [jointLog] [info] iteration = 1,200 | max rel diff. = 0.0175108
+[2026-06-15 14:52:38.879] [jointLog] [info] iteration = 1,300 | max rel diff. = 2.9567
+[2026-06-15 14:52:39.331] [jointLog] [info] iteration = 1,307 | max rel diff. = 0.00995995
+[2026-06-15 14:52:39.336] [jointLog] [info] Finished optimizer
+[2026-06-15 14:52:39.336] [jointLog] [info] writing output 
+
+[2026-06-15 14:52:39.790] [jointLog] [warning] NOTE: Read Lib [[ data/cleaned/Treg_KO_1.fastq.gz ]] :
+
+Detected a *potential* strand bias > 1% in an unstranded protocol check the file: results/salmon/Treg_KO_1/lib_format_counts.json for details
+

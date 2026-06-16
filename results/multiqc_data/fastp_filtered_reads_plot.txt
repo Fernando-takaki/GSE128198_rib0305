@@ -1,0 +1,13 @@
+Sample	Passed Filter	Low Quality	Too Many N	Low Complexity	Too Short	Too Long
+Tconv_KO_1	8068767.0	3968.0	90.0	nan	47.0	0.0
+Tconv_KO_2	8482372.0	2659.0	99.0	nan	24.0	0.0
+Tconv_KO_3	12622697.0	2879.0	142.0	nan	23.0	0.0
+Tconv_WT_1	9208563.0	3642.0	128.0	nan	36.0	0.0
+Tconv_WT_2	9315801.0	3790.0	109.0	nan	38.0	0.0
+Tconv_WT_3	11625676.0	3396.0	129.0	nan	14.0	0.0
+Treg_KO_1	8939430.0	2253.0	104.0	nan	27.0	0.0
+Treg_KO_2	9328298.0	2291.0	127.0	nan	19.0	0.0
+Treg_KO_3	12564150.0	3175.0	162.0	nan	19.0	0.0
+Treg_WT_1	9913817.0	3106.0	134.0	nan	31.0	0.0
+Treg_WT_2	8430419.0	3821.0	100.0	nan	52.0	0.0
+Treg_WT_3	8624836.0	2281.0	94.0	nan	18.0	0.0

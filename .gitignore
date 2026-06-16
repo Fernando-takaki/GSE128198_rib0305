@@ -1,7 +1,20 @@
+# Ignorar dados brutos e limpos
 data/raw/
-results/
-reference/*.fa
-reference/*.gtf
-*.bam
-*.gz
+data/cleaned/
+
+# Ignorar arquivos pesados de referência
+reference/*.fa.gz
+reference/salmon_index/
+
+# Ignorar pastas ocultas do Snakemake
 .snakemake/
+
+# Ignorar arquivos de sistema (Mac/Windows)
+**/.DS_Store
+
+# Ignorar arquivos pesados no geral
+*.fastq.gz
+*.fq.gz
+*.bam
+*.sam
+*.zip

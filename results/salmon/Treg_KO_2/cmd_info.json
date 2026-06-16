@@ -1,0 +1,9 @@
+{
+    "salmon_version": "1.10.3",
+    "index": "reference/salmon_index",
+    "libType": "A",
+    "unmatedReads": "data/cleaned/Treg_KO_2.fastq.gz",
+    "threads": "2",
+    "output": "results/salmon/Treg_KO_2/",
+    "auxDir": "aux_info"
+}
